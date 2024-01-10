@@ -1,5 +1,4 @@
-import json
-from jsonhandler import read_json, write_json
+from core.data_files.jsonhandler import read_json, write_json
 
 """Check functions"""
 
@@ -12,8 +11,8 @@ def in_dictionary(dictionary: dict, key=None, value=None):
     return False
 
 
-def user_id_in_user_dict(user_id: str) -> bool:
-    users_dict = read_json('users_id_dict.json')
+def user_id_in_registered_users(user_id: str) -> bool:
+    users_dict = read_json('users_info.json')
     return in_dictionary(users_dict, key=user_id)
 
 
@@ -39,7 +38,7 @@ def position_is_occupied(position: str, queue_name: str) -> (bool, str):
         return 'Queue_not_exists'
 
 
-"""Check functions"""
+"""/Check functions"""
 """Get functions"""
 
 
@@ -47,8 +46,6 @@ def get_user_pos(user_id: str, queue_name: str) -> (int, str):
     if user_id_in_queue(user_id, queue_name) == 'Queue_not_exists':
         return 'Queue_not_exists'
     elif user_id_in_queue(user_id, queue_name):
-        print(user_id_in_queue(user_id, queue_name))
-        print('/////////////')
         queue_list = read_json('queue_list.json')
         queue = queue_list[queue_name]
         return list(queue.keys())[list(queue.values()).index(user_id)]
@@ -82,7 +79,12 @@ def get_users_in_queue(queue_name: str) -> list:
     return users
 
 
-"""Get info functions"""
+def get_all_queue_names() -> list:
+    queue_list = read_json('queue_list.json')
+    return list(queue_list.keys())
+
+
+"""/Get info functions"""
 
 
 def find_last_empty_pos_in_queue(queue: dict) -> str:
@@ -99,11 +101,11 @@ def find_last_empty_pos_in_queue(queue: dict) -> str:
         return "1"
 
 
-def add_user_to_user_dict(user_id: str, user_name: str) -> bool:
-    users_list = read_json('users_id_dict.json')
-    if not user_id_in_user_dict(user_id):
+def add_user_to_registered_users(user_id: str, user_name: str) -> bool:
+    users_list = read_json('users_info.json')
+    if not user_id_in_registered_users(user_id):
         users_list[user_id] = user_name
-        write_json('users_id_dict.json', users_list)
+        write_json('users_info.json', users_list)
         return True
     else:
         return False
@@ -170,14 +172,3 @@ def delete_queue(queue_name: str) -> (bool, str):
         return True
     else:
         return 'Queue_not_exist'
-
-
-test_dict = {
-    "name": {
-        "1": "11",
-        "2": "22",
-        "4": "44",
-    }
-}
-
-print(get_users_in_queue('queue_1'))

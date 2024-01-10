@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from core.utils.callbackdata import ButtonInfo
+from core.utils.callbackdata import QueuesButtonInfo
 
 select_mackbook = InlineKeyboardMarkup(inline_keyboard=[
     [
@@ -30,7 +30,14 @@ def get_inline_keyboard():
     keyboard_builder = InlineKeyboardBuilder()
     for i in range(5):
         keyboard_builder.button(text=f'кнопка номер {i}',
-                                callback_data=ButtonInfo(button_name=f'{i}', button_data=f'{i}'))
+                                callback_data=QueuesButtonInfo(button_name=f'{i}'))
 
     keyboard_builder.adjust(1, repeat=True)
     return keyboard_builder.as_markup()
+
+
+def get_inline_queues_keyboard(queue_names):
+    keyboard_builder = InlineKeyboardBuilder()
+    for i in queue_names:
+        keyboard_builder.button(text=f'{i}',
+                                callback_data=QueuesButtonInfo(button_name=f'{i}'))

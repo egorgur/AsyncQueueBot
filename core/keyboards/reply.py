@@ -6,15 +6,15 @@ reply_keyboard = ReplyKeyboardMarkup(keyboard=[
             text='Очереди'
         ),
         KeyboardButton(
-            text='Очереди'
+            text='...'
         ),
     ],
     [
         KeyboardButton(
-            text='Дедлайны'
+            text=',,,'
         ),
         KeyboardButton(
-            text='О боте'
+            text='mmmm'
         ),
     ]
 ], resize_keyboard=True, input_field_placeholder='Выберите кнопку')

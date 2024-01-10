@@ -1,6 +1,6 @@
 from aiogram import types, Bot
 
-from core.data_files.jsonhandler import write_json, read_json
+from core.data_files.funcs import get_all_queue_names
 
 from core.keyboards.reply import reply_keyboard
 
@@ -13,6 +13,11 @@ async def get_inline(message: types.Message, bot: Bot):
 
 async def start_command(message: types.Message, bot: Bot):
     await message.answer(f'Привет {message.from_user.first_name} gpownmw', reply_markup=reply_keyboard)
+
+
+async def view_all_queues(message: types.Message, bot: Bot):
+    names = get_all_queue_names()
+    await message.answer(f'все очереди {names}')
 
 
 async def get_photo(message: types.Message, bot: Bot):

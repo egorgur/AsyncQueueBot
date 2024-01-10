@@ -1,6 +1,5 @@
 from aiogram.filters.callback_data import CallbackData
 
 
-class ButtonInfo(CallbackData, prefix='button_callback_data'):
+class QueuesButtonInfo(CallbackData, prefix='queues_'):
     button_name: str
-    button_data: str
