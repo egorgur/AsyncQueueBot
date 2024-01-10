@@ -184,3 +184,11 @@ def delete_queue(queue_name: str) -> (bool, str):
         return True
     else:
         return 'Queue_not_exist'
+
+
+def rename_queue(queue_name: str, new_queue_name: str):
+    queue_list = read_json("queue_list.json")
+    queue = queue_list[queue_name]
+    queue_list.pop(queue_name)
+    queue_list[str(new_queue_name)] = queue
+    write_json("queue_list.json", queue_list)

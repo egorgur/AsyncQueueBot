@@ -27,17 +27,17 @@ select = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 
-def get_inline_queues_control(queues_names: list):
+def get_inline_queues_control(queue_names: list):
     keyboard_builder = InlineKeyboardBuilder()
-    for i in range(len(queues_names)):
-        keyboard_builder.button(text=f'{queues_names[i]}',
+    for i in range(len(queue_names)):
+        keyboard_builder.button(text=f'{queue_names[i]}',
                                 callback_data=NoneInfo())
         keyboard_builder.button(text='Переименовать',
-                                callback_data=RenameQueue(queue_name=queues_names[i]))
+                                callback_data=RenameQueue(queue_name=queue_names[i]))
         keyboard_builder.button(text='Удалить',
-                                callback_data=DeleteQueue(queues_names=queues_names[i]))
+                                callback_data=DeleteQueue(queue_name=queue_names[i]))
     keyboard_builder.button(text='Создать очередь',
-                            callback_data=NoneInfo())
+                            callback_data=MakeQueue())
     keyboard_builder.adjust(3, repeat=True)
     return keyboard_builder.as_markup()
 
