@@ -6,12 +6,12 @@ reply_keyboard = ReplyKeyboardMarkup(keyboard=[
             text='Очереди'
         ),
         KeyboardButton(
-            text='...'
+            text='Управление очередями'
         ),
     ],
     [
         KeyboardButton(
-            text=',,,'
+            text='nnn'
         ),
         KeyboardButton(
             text='mmmm'

@@ -39,6 +39,18 @@ def position_is_occupied(position: str, queue_name: str) -> (bool, str):
 
 
 """/Check functions"""
+"""Sorting functions"""
+
+
+def sort_queue(queue_name: str) -> None:
+    queue_list = read_json('queue_list.json')
+    queue = queue_list[queue_name]
+    queue = dict(sorted(queue.items(), key=lambda x: int(x[0])))
+    queue_list[queue_name] = queue
+    write_json('queue_list.json', queue_list)
+
+
+"""/Sorting functions"""
 """Get functions"""
 
 

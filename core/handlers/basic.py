@@ -1,14 +1,10 @@
 from aiogram import types, Bot
 
-from core.data_files.funcs import get_all_queue_names
+from core.data_files import funcs
 
 from core.keyboards.reply import reply_keyboard
 
-from core.keyboards.inline import get_inline_keyboard
-
-
-async def get_inline(message: types.Message, bot: Bot):
-    await message.answer('inline klava', reply_markup=get_inline_keyboard())
+from core.keyboards.inline import get_inline_queues_control, get_inline_queues_keyboard
 
 
 async def start_command(message: types.Message, bot: Bot):
@@ -16,8 +12,13 @@ async def start_command(message: types.Message, bot: Bot):
 
 
 async def view_all_queues(message: types.Message, bot: Bot):
-    names = get_all_queue_names()
-    await message.answer(f'все очереди {names}')
+    names = funcs.get_all_queue_names()
+    await message.answer(f'все очереди {names}', reply_markup=get_inline_queues_keyboard(names))
+
+
+async def view_queues_control_menu(message: types.Message, bot: Bot):
+    names = funcs.get_all_queue_names()
+    await message.answer(f'все очереди {names}', reply_markup=get_inline_queues_control(names))
 
 
 async def get_photo(message: types.Message, bot: Bot):

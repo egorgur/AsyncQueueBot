@@ -3,8 +3,8 @@ from aiogram import Bot, Dispatcher
 import asyncio
 import logging
 
-from core.handlers.basic import start_command, get_photo, get_inline, view_all_queues
-from core.handlers.callback import select_test
+from core.handlers.basic import start_command, get_photo, view_queues_control_menu, view_all_queues
+from core.handlers.callback import select_queue, delete_user, add_user, show_queues
 
 from core.settings import settings
 
@@ -12,7 +12,7 @@ from aiogram.filters import Command
 from aiogram import F
 
 from core.utils.commands import set_commands
-from core.utils.callbackdata import QueuesButtonInfo
+from core.utils.callbackdata import QueuesButtonInfo, UserDeletion, UserAddition, ReturnToQueues, NoneInfo
 
 Token = settings.bots.bot_token
 admin_id = settings.bots.admin_id
@@ -40,9 +40,12 @@ async def start():
     dp.shutdown.register(stop_bot)
     dp.message.register(get_photo, F.photo)
     dp.message.register(start_command, Command(commands=['start']))
-    dp.message.register(get_inline, Command(commands=['inline']))
-    dp.callback_query.register(select_test, QueuesButtonInfo.filter())
+    dp.callback_query.register(select_queue, QueuesButtonInfo.filter())
+    dp.callback_query.register(delete_user, UserDeletion.filter())
+    dp.callback_query.register(add_user, UserAddition.filter())
+    dp.callback_query.register(show_queues, ReturnToQueues.filter())
     dp.message.register(view_all_queues, F.text == 'Очереди')
+    dp.message.register(view_queues_control_menu, F.text == 'Управление очередями')
     try:
         await dp.start_polling(bot)
     finally:
