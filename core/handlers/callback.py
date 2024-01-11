@@ -1,12 +1,14 @@
 from aiogram import types, Bot
 from aiogram.types import CallbackQuery
+from asyncio import sleep
 
 from core.utils.callbackdata import QueuesButtonInfo, UserIdButtonInfo, UserDeletion, UserAddition, ReturnToQueues, \
-    DeleteQueue, RenameQueue, MakeQueue
+    DeleteQueue, RenameQueue, MakeQueue, SpecUserAdditionCall, SpecUserAddition, UserToSwap
 
 from core.data_files import funcs
 
-from core.keyboards.inline import get_inline_users_in_queue, get_inline_queues_keyboard, get_inline_queues_control
+from core.keyboards.inline import get_inline_users_in_queue, get_inline_queues_keyboard, get_inline_queues_control, \
+    empty_positions
 
 from core.utils.utils import util_data
 
@@ -24,7 +26,9 @@ async def select_queue(call: CallbackQuery, bot: Bot, callback_data: QueuesButto
 async def delete_user(call: CallbackQuery, bot: Bot, callback_data: UserDeletion):
     user_id = callback_data.user_id
     queue_name = callback_data.queue_name
+    position = funcs.get_user_pos(user_id, queue_name)
     funcs.delete_user_from_queue(user_id, queue_name)
+    funcs.update_positions(queue_name, position)
     queue_list = funcs.read_json('queue_list.json')
     queue = queue_list[queue_name]
     await call.message.delete()
@@ -62,11 +66,51 @@ async def rename_queue_call(call: CallbackQuery, bot: Bot, callback_data: Rename
     queue_name = callback_data.queue_name
     util_data.queue_name = queue_name
     util_data.last_bot_message_id = call.message.message_id
+    util_data.last_action[call.from_user.id] = 'rename'
     await call.message.delete()
     await call.message.answer(f'Переименовать {queue_name}. Напишите новое название реплаем на это сообщение')
 
 
 async def make_queue_call(call: CallbackQuery, bot: Bot, callback_data: MakeQueue):
     util_data.last_bot_message_id = call.message.message_id
+    util_data.last_action[call.from_user.id] = 'make'
     await call.message.delete()
     await call.message.answer(f'Напишите название новой очереди реплаем на это сообщение')
+
+
+async def spec_user_add_menu(call: CallbackQuery, bot: Bot, callback_data: SpecUserAdditionCall):
+    user_id = callback_data.user_id
+    queue_name = callback_data.queue_name
+    queue_list = funcs.read_json('queue_list.json')
+    queue = queue_list[queue_name]
+    await call.message.delete()
+    await call.message.answer(f'Выберите незанятое место',
+                              reply_markup=empty_positions(queue=queue, queue_name=queue_name,
+                                                           user_id_that_calls=user_id))
+
+
+async def spec_user_add(call: CallbackQuery, bot: Bot, callback_data: SpecUserAddition):
+    user_id = callback_data.user_id
+    queue_name = callback_data.queue_name
+    position = callback_data.position
+    queue_list = funcs.read_json('queue_list.json')
+    queue = queue_list[queue_name]
+    funcs.add_user_to_specific_position_in_queue(user_id, position, queue_name)
+    queue_list = funcs.read_json('queue_list.json')
+    queue = queue_list[queue_name]
+    await call.message.delete()
+    await call.message.answer('Пользователи',
+                              reply_markup=get_inline_users_in_queue(queue, queue_name, str(call.from_user.id)))
+
+
+async def user_swap_request_registrator(call: CallbackQuery, bot: Bot, callback_data: UserToSwap):
+    user_1_id = callback_data.user_1_id
+    user_2_id = callback_data.user_2_id
+    util_data.swap_requests[user_1_id] = user_2_id
+    print(util_data.swap_requests)
+    await call.message.answer(f'Отправлен запрос на смену мест {funcs.get_user_name_by_id(user_2_id)}')
+    await bot.send_message(user_2_id,'test soobshenie')
+    await sleep(5)
+    util_data.swap_requests.pop(user_1_id)
+    print(util_data.swap_requests)
+

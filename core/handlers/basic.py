@@ -10,6 +10,7 @@ from core.utils.utils import util_data
 
 
 async def start_command(message: types.Message, bot: Bot):
+    funcs.add_user_to_registered_users(dict(message.from_user), str(message.from_user.id))
     await message.answer(f'Привет {message.from_user.first_name} gpownmw', reply_markup=reply_keyboard)
 
 
@@ -30,14 +31,12 @@ async def get_photo(message: types.Message, bot: Bot):
     await bot.download_file(file.file_path, 'downloads/photo.png')
 
 
-async def rename_process(message: types.Message, bot: Bot):
+async def reply_processing(message: types.Message, bot: Bot):
     if message.reply_to_message.message_id == util_data.last_bot_message_id + 1:
-        funcs.rename_queue(util_data.queue_name, message.text)
-        await message.answer('Очередь переименована')
-
-
-async def make_process(message: types.Message, bot: Bot):
-    if message.reply_to_message.message_id == util_data.last_bot_message_id + 1:
-        funcs.make_new_queue(message.text)
-        funcs.add_user_to_last_position_in_queue(str(message.from_user.id), message.text)
-        await message.answer('Очередь создана')
+        if util_data.last_action[message.from_user.id] == 'make':
+            funcs.make_new_queue(message.text)
+            funcs.add_user_to_last_position_in_queue(str(message.from_user.id), message.text)
+            await message.answer('Очередь создана')
+        elif util_data.last_action[message.from_user.id] == 'rename':
+            funcs.rename_queue(util_data.queue_name, message.text)
+            await message.answer('Очередь переименована')

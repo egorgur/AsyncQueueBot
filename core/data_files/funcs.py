@@ -11,6 +11,10 @@ def in_dictionary(dictionary: dict, key=None, value=None):
     return False
 
 
+def rekey(inp_dict, keys_replace):
+    return {keys_replace.get(k, k): v for k, v in inp_dict.items()}
+
+
 def user_id_in_registered_users(user_id: str) -> bool:
     users_dict = read_json('users_info.json')
     return in_dictionary(users_dict, key=user_id)
@@ -39,7 +43,7 @@ def position_is_occupied(position: str, queue_name: str) -> (bool, str):
 
 
 """/Check functions"""
-"""Sorting functions"""
+"""Update functions"""
 
 
 def sort_queue(queue_name: str) -> None:
@@ -50,8 +54,25 @@ def sort_queue(queue_name: str) -> None:
     write_json('queue_list.json', queue_list)
 
 
-"""/Sorting functions"""
+def update_positions(queue_name: str, position: str) -> None:
+    queue_list = read_json('queue_list.json')
+    queue = queue_list[queue_name]
+    replace_keys = {i: str(int(i) - 1) for i in queue.keys() if int(i) > int(position)}
+    queue_list[queue_name] = rekey(queue, replace_keys)
+    write_json('queue_list.json', queue_list)
+    sort_queue(queue_name)
+
+
+"""/Update functions"""
 """Get functions"""
+
+
+def get_user_name_by_id(user_id: str) -> str:
+    if user_id_in_registered_users(user_id):
+        users_list = read_json('users_info.json')
+        return users_list[user_id]["first_name"]
+    else:
+        return 'нет имени, кто на этом месте должен прописать /start'
 
 
 def get_user_pos(user_id: str, queue_name: str) -> (int, str):
@@ -113,14 +134,10 @@ def find_last_empty_pos_in_queue(queue: dict) -> str:
         return "1"
 
 
-def add_user_to_registered_users(user_id: str, user_name: str) -> bool:
+def add_user_to_registered_users(from_user_data: dict, user_id: str) -> None:
     users_list = read_json('users_info.json')
-    if not user_id_in_registered_users(user_id):
-        users_list[user_id] = user_name
-        write_json('users_info.json', users_list)
-        return True
-    else:
-        return False
+    users_list[user_id] = from_user_data
+    write_json('users_info.json', users_list)
 
 
 def add_user_to_last_position_in_queue(user_id: str, queue_name: str) -> (bool, str):
@@ -192,3 +209,4 @@ def rename_queue(queue_name: str, new_queue_name: str):
     queue_list.pop(queue_name)
     queue_list[str(new_queue_name)] = queue
     write_json("queue_list.json", queue_list)
+
