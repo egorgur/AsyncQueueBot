@@ -8,6 +8,7 @@ class QueuesButtonInfo(CallbackData, prefix='queues_'):
 class UserToSwap(CallbackData, prefix='user_to_swap_'):
     user_1_id: str
     user_2_id: str
+    queue_name: str
 
 
 class UserIdButtonInfo(CallbackData, prefix='user_id_'):

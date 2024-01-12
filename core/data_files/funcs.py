@@ -1,4 +1,5 @@
 from core.data_files.jsonhandler import read_json, write_json
+from core.utils.utils import util_data
 
 """Check functions"""
 
@@ -11,8 +12,12 @@ def in_dictionary(dictionary: dict, key=None, value=None):
     return False
 
 
-def rekey(inp_dict, keys_replace):
-    return {keys_replace.get(k, k): v for k, v in inp_dict.items()}
+def find_last_swap_call(dictionary: dict, user_2_id: str) -> str:
+    calls = [key.split('->')[1] for key in dictionary.keys()]
+    for i in range(len(calls) - 1, -1, -1):
+        if calls[i] == user_2_id:
+            return list(dictionary.keys())[i]
+    return 'no_swap_requests'
 
 
 def user_id_in_registered_users(user_id: str) -> bool:
@@ -54,6 +59,10 @@ def sort_queue(queue_name: str) -> None:
     write_json('queue_list.json', queue_list)
 
 
+def rekey(inp_dict, keys_replace):
+    return {keys_replace.get(k, k): v for k, v in inp_dict.items()}
+
+
 def update_positions(queue_name: str, position: str) -> None:
     queue_list = read_json('queue_list.json')
     queue = queue_list[queue_name]
@@ -73,6 +82,12 @@ def get_user_name_by_id(user_id: str) -> str:
         return users_list[user_id]["first_name"]
     else:
         return 'нет имени, кто на этом месте должен прописать /start'
+
+
+def get_queue(queue_name: str) -> dict:
+    if queue_exists(queue_name):
+        queue_list = read_json('queue_list.json')
+        return queue_list[queue_name]
 
 
 def get_user_pos(user_id: str, queue_name: str) -> (int, str):
@@ -183,6 +198,15 @@ def delete_user_from_queue(user_id: str, queue_name: str) -> (bool, str):
         return 'No_user_in_queue'
 
 
+def swap_positions(user_1_id: str, user_2_id: str, queue_name: str) -> None:
+    queue_list = read_json('queue_list.json')
+    queue = queue_list[queue_name]
+    queue[get_user_pos(user_1_id, queue_name)], queue[get_user_pos(user_2_id, queue_name)] = queue[
+        get_user_pos(user_2_id, queue_name)], queue[get_user_pos(user_1_id, queue_name)]
+    queue_list[queue_name] = queue
+    write_json('queue_list.json', queue_list)
+
+
 def make_new_queue(queue_name: str) -> (bool, str):
     if not queue_exists(queue_name):
         queue_list = read_json('queue_list.json')
@@ -209,4 +233,3 @@ def rename_queue(queue_name: str, new_queue_name: str):
     queue_list.pop(queue_name)
     queue_list[str(new_queue_name)] = queue
     write_json("queue_list.json", queue_list)
-

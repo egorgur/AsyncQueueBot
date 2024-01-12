@@ -28,9 +28,22 @@
     "1289300068": {
         "id": 1289300068,
         "is_bot": false,
-        "first_name": "Антон",
+        "first_name": "СЕКС ИНСТРУКТОР ИЗ НАТО",
         "last_name": null,
         "username": "mr_Sabaton4ik",
+        "language_code": "ru",
+        "is_premium": null,
+        "added_to_attachment_menu": null,
+        "can_join_groups": null,
+        "can_read_all_group_messages": null,
+        "supports_inline_queries": null
+    },
+    "2093254626": {
+        "id": 2093254626,
+        "is_bot": false,
+        "first_name": "Данил",
+        "last_name": null,
+        "username": "ldan1801",
         "language_code": "ru",
         "is_premium": null,
         "added_to_attachment_menu": null,
