@@ -1,5 +1,4 @@
-from core.data_files.jsonhandler import read_json, write_json
-from core.utils.utils import util_data
+from data_files.jsonhandler import read_json, write_json
 
 """Check functions"""
 
@@ -16,6 +15,14 @@ def find_last_swap_call(dictionary: dict, user_2_id: str) -> str:
     calls = [key.split('->')[1] for key in dictionary.keys()]
     for i in range(len(calls) - 1, -1, -1):
         if calls[i] == user_2_id:
+            return list(dictionary.keys())[i]
+    return 'no_swap_requests'
+
+
+def find_first_swap_call(dictionary: dict, user_1_id: str) -> str:
+    calls = [key.split('->')[0] for key in dictionary.keys()]
+    for i in range(len(calls)):
+        if calls[i] == user_1_id:
             return list(dictionary.keys())[i]
     return 'no_swap_requests'
 
@@ -66,7 +73,7 @@ def rekey(inp_dict, keys_replace):
 def update_positions(queue_name: str, position: str) -> None:
     queue_list = read_json('queue_list.json')
     queue = queue_list[queue_name]
-    replace_keys = {i: str(int(i) - 1) for i in queue.keys() if int(i) > int(position)}
+    replace_keys = {i: str(int(i) - 1) for i in queue.keys() if int(i) >= int(position)}
     queue_list[queue_name] = rekey(queue, replace_keys)
     write_json('queue_list.json', queue_list)
     sort_queue(queue_name)
@@ -74,6 +81,12 @@ def update_positions(queue_name: str, position: str) -> None:
 
 """/Update functions"""
 """Get functions"""
+
+
+def get_registered_users() -> list:
+    users_dict = read_json('users_info.json')
+    users_list = list(users_dict.keys())
+    return users_list
 
 
 def get_user_name_by_id(user_id: str) -> str:

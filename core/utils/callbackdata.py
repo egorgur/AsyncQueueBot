@@ -5,7 +5,7 @@ class QueuesButtonInfo(CallbackData, prefix='queues_'):
     button_name: str
 
 
-class UserToSwap(CallbackData, prefix='user_to_swap_'):
+class UserToSwap(CallbackData, prefix='swap_'):
     user_1_id: str
     user_2_id: str
     queue_name: str
