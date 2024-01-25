@@ -11,7 +11,8 @@ from keyboards.reply import reply_keyboard
 
 from settings import ADMIN_ID
 
-from keyboards.inline import get_inline_queues_control, get_inline_queues_keyboard, get_inline_users_in_queue
+from keyboards.inline import get_inline_queues_control, get_inline_queues_keyboard, get_inline_users_in_queue, \
+    get_inline_timed_queues_control
 from utils.utils import util_data
 
 
@@ -41,33 +42,61 @@ async def get_photo(message: types.Message, bot: Bot):
 
 
 async def reply_processing(message: types.Message, bot: Bot):
-    if message.reply_to_message.message_id == util_data.last_bot_message_id[message.from_user.id].message_id:
-        if not message.text:
-            await message.answer('Неверный ввод')
-            return 0
-        if len(message.text) >= 20:
-            await message.answer('Слишком длинное название')
-            return 0
-        alphabet = ("1234567890"
-                    "abcdefghijklmnopqrstuvwxyz"
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                    "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-                    "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
-                    ",. ")
-        if [symbol for symbol in message.text if symbol not in alphabet]:
-            await message.answer('Запрещённые символы')
-            print(str(message.text))
-            return 0
-        if util_data.last_action[message.from_user.id] == 'make':
-            funcs.make_new_queue(str(message.text))
-            funcs.add_user_to_last_position_in_queue(str(message.from_user.id), str(message.text))
-            await ping_all_users(bot, f'Создана очередь {message.text}')
-            await message.answer('Очередь создана',
-                                 reply_markup=reply_keyboard)
-        elif util_data.last_action[message.from_user.id] == 'rename':
-            funcs.rename_queue(util_data.queue_name[message.from_user.id], str(message.text))
-            await message.answer('Очередь переименована',
-                                 reply_markup=reply_keyboard)
+    try:
+        if message.reply_to_message.message_id == util_data.last_bot_message_id[message.from_user.id].message_id:
+            if not message.text:
+                await message.answer('Неверный ввод')
+                return 0
+            alphabet = ("1234567890"
+                        "abcdefghijklmnopqrstuvwxyz"
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                        "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+                        "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+                        ",.() ")
+            if [symbol for symbol in message.text if symbol not in alphabet]:
+                await message.answer('Запрещённые символы')
+                return 0
+            if util_data.last_action[message.from_user.id] == 'make_timed':
+                try:
+                    name = message.text.split(')')[0]
+                    name = name.replace('(', '')
+                    date, time = message.text.split(')')[1].split(' ')[1], message.text.split(')')[1].split(' ')[2]
+                    if not name:
+                        await message.answer('Неверный ввод названия')
+                        return 0
+                    if len(name)>19:
+                        await message.answer('Название слишком длинное')
+                    if len(date) > 2:
+                        await message.answer('Неверный ввод даты')
+                        return 0
+                    if len(time) < 4 or ('.' not in time) or len(time) > 5:
+                        await message.answer('Неверный ввод времени')
+                        return 0
+                    if len(time) == 4:
+                        time = '0' + time
+                    funcs.make_timed_queue(name, date, time)
+                    queue_data = funcs.get_all_timed_queue_data()
+                    await message.answer(f'Отложенные очереди',
+                                         reply_markup=get_inline_timed_queues_control(queue_data))
+                    return 0
+                except:
+                    await message.answer('Неверный ввод данных очереди')
+                    return 0
+            if len(message.text) >= 20:
+                await message.answer('Слишком длинное название')
+                return 0
+            if util_data.last_action[message.from_user.id] == 'make':
+                funcs.make_new_queue(str(message.text))
+                funcs.add_user_to_last_position_in_queue(str(message.from_user.id), str(message.text))
+                await ping_all_users(bot, f'Создана очередь {message.text}')
+                await message.answer('Очередь создана',
+                                     reply_markup=reply_keyboard)
+            elif util_data.last_action[message.from_user.id] == 'rename':
+                funcs.rename_queue(util_data.queue_name[message.from_user.id], str(message.text))
+                await message.answer('Очередь переименована',
+                                     reply_markup=reply_keyboard)
+    except KeyError:
+        logging.error(f"From [ID:{message.from_user.id}]:Key Error, Call to old message")
 
 
 async def cancel_swap_request(message: types.Message, bot: Bot):
@@ -133,7 +162,6 @@ async def debug_info(message: types.Message, bot: Bot):
 async def ping_all_users(bot: Bot, s):
     registered_users = funcs.get_registered_users()
     users = list(map(int, registered_users))
-    print(users)
     for user_id in users:
         try:
             await bot.send_message(chat_id=user_id, text=s)

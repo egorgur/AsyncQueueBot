@@ -6,7 +6,8 @@ import logging
 from handlers.basic import start_command, get_photo, view_queues_control_menu, view_all_queues, reply_processing, \
     accepting_swap_request, deni_swap_request, debug_info, show_help, send_message_to_all_users, cancel_swap_request
 from handlers.callback import select_queue, delete_user, add_user, show_queues, delete_queue, rename_queue_call, \
-    make_queue_call, spec_user_add_menu, spec_user_add, user_swap_request_registrator
+    make_queue_call, spec_user_add_menu, spec_user_add, user_swap_request_registrator, timed_queues_menu, \
+    show_queues_control_menu, delete_timed_queue, make_timed_queue_call
 
 from settings import TOKEN, ADMIN_ID
 from aiogram.filters import Command
@@ -14,7 +15,9 @@ from aiogram import F
 
 from utils.commands import set_commands
 from utils.callbackdata import QueuesButtonInfo, UserDeletion, UserAddition, ReturnToQueues, DeleteQueue, \
-    RenameQueue, MakeQueue, SpecUserAdditionCall, SpecUserAddition, UserToSwap, NoneInfo
+    RenameQueue, MakeQueue, MakeTimedQueue, SpecUserAdditionCall, SpecUserAddition, UserToSwap, TimedQueues, \
+    QueuesControl, DeleteTimedQueue
+from utils.time_checker import timed_queues_processor
 
 Token = TOKEN
 
@@ -49,9 +52,13 @@ async def start():
     dp.callback_query.register(delete_queue, DeleteQueue.filter())
     dp.callback_query.register(rename_queue_call, RenameQueue.filter())
     dp.callback_query.register(make_queue_call, MakeQueue.filter())
+    dp.callback_query.register(make_timed_queue_call, MakeTimedQueue.filter())
     dp.callback_query.register(spec_user_add_menu, SpecUserAdditionCall.filter())
     dp.callback_query.register(spec_user_add, SpecUserAddition.filter())
     dp.callback_query.register(user_swap_request_registrator, UserToSwap.filter())
+    dp.callback_query.register(timed_queues_menu, TimedQueues.filter())
+    dp.callback_query.register(show_queues_control_menu, QueuesControl.filter())
+    dp.callback_query.register(delete_timed_queue, DeleteTimedQueue.filter())
 
     dp.message.register(deni_swap_request, Command(commands=['deni']))
     dp.message.register(accepting_swap_request, Command(commands=['swap']))
@@ -62,10 +69,14 @@ async def start():
     dp.message.register(show_help, F.text == 'Помощь')
     dp.message.register(view_all_queues, F.text == 'Очереди')
     dp.message.register(view_queues_control_menu, F.text == 'Управление очередями')
+
+    task1 = asyncio.create_task(timed_queues_processor(Token))
     try:
-        await dp.start_polling(bot)
+        task2 = asyncio.create_task(dp.start_polling(bot))
+        await asyncio.gather(task2, task1)
     finally:
-        await bot.session.close()
+        task3 = asyncio.create_task(bot.session.close())
+        await asyncio.gather(task3)
 
 
 if __name__ == '__main__':

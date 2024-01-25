@@ -40,6 +40,10 @@ class DeleteQueue(CallbackData, prefix='delete_queue_'):
     queue_name: str
 
 
+class DeleteTimedQueue(CallbackData, prefix='delete_timed_queue_'):
+    queue_name: str
+
+
 class RenameQueue(CallbackData, prefix='rename_queue_'):
     queue_name: str
 
@@ -48,9 +52,21 @@ class MakeQueue(CallbackData, prefix='make_queue_'):
     ...
 
 
+class MakeTimedQueue(CallbackData, prefix='make_timed_'):
+    ...
+
+
+class TimedQueues(CallbackData, prefix='timed_queue_'):
+    ...
+
+
 class NoneInfo(CallbackData, prefix='none_'):
     ...
 
 
 class ReturnToQueues(CallbackData, prefix='return_to_queues_'):
+    ...
+
+
+class QueuesControl(CallbackData, prefix='return_to_queues_control_'):
     ...

@@ -6,12 +6,13 @@ from aiogram.types import CallbackQuery
 from asyncio import sleep
 
 from utils.callbackdata import QueuesButtonInfo, UserIdButtonInfo, UserDeletion, UserAddition, ReturnToQueues, \
-    DeleteQueue, RenameQueue, MakeQueue, SpecUserAdditionCall, SpecUserAddition, UserToSwap
+    DeleteQueue, RenameQueue, MakeQueue, MakeTimedQueue, TimedQueues, SpecUserAdditionCall, SpecUserAddition, \
+    UserToSwap, QueuesControl, DeleteTimedQueue
 
 from data_files import funcs
 
 from keyboards.inline import get_inline_users_in_queue, get_inline_queues_keyboard, get_inline_queues_control, \
-    empty_positions
+    empty_positions, get_inline_timed_queues_control
 
 from utils.utils import util_data
 
@@ -56,6 +57,13 @@ async def delete_queue(call: CallbackQuery, bot: Bot, callback_data: DeleteQueue
     await call.message.edit_text(f'Все очереди', reply_markup=get_inline_queues_control(names))
 
 
+async def delete_timed_queue(call: CallbackQuery, bot: Bot, callback_data: DeleteTimedQueue):
+    queue_name = callback_data.queue_name
+    funcs.delete_timed_queue(queue_name)
+    queue_data = funcs.get_all_timed_queue_data()
+    await call.message.edit_text(f'Отложенные очереди', reply_markup=get_inline_timed_queues_control(queue_data))
+
+
 async def show_queues(call: CallbackQuery, bot: Bot, callback_data: ReturnToQueues):
     names = funcs.get_all_queue_names()
     await call.message.edit_text(f'Все очереди', reply_markup=get_inline_queues_keyboard(names))
@@ -73,6 +81,23 @@ async def make_queue_call(call: CallbackQuery, bot: Bot, callback_data: MakeQueu
     util_data.last_bot_message_id[call.from_user.id] = call.message
     util_data.last_action[call.from_user.id] = 'make'
     await call.message.edit_text(f'Напишите название новой очереди реплаем на это сообщение')
+
+
+async def make_timed_queue_call(call: CallbackQuery, bot: Bot, callback_data: MakeTimedQueue):
+    util_data.last_bot_message_id[call.from_user.id] = call.message
+    util_data.last_action[call.from_user.id] = 'make_timed'
+    await call.message.edit_text(f'Введите название(в cкобках), дату и время новой очереди реплаем на это сообщение\n'
+                                 f'Пример: (Очередь 1) 5 4.00')
+
+
+async def show_queues_control_menu(call: CallbackQuery, bot: Bot, callback_data: QueuesControl):
+    names = funcs.get_all_queue_names()
+    await call.message.edit_text(f'Все очереди', reply_markup=get_inline_queues_control(names))
+
+
+async def timed_queues_menu(call: CallbackQuery, bot: Bot, callback_data: TimedQueues):
+    queue_data = funcs.get_all_timed_queue_data()
+    await call.message.edit_text(f'Отложенные очереди', reply_markup=get_inline_timed_queues_control(queue_data))
 
 
 async def spec_user_add_menu(call: CallbackQuery, bot: Bot, callback_data: SpecUserAdditionCall):

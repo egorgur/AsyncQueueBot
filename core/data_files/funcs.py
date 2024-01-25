@@ -145,6 +145,11 @@ def get_all_queue_names() -> list:
     return list(queue_list.keys())
 
 
+def get_all_timed_queue_data() -> list:
+    queue_list = read_json('timed_queues.json')
+    return list(queue_list.items())
+
+
 """/Get info functions"""
 
 
@@ -229,6 +234,10 @@ def make_new_queue(queue_name: str) -> (bool, str):
     else:
         return 'Queue_exists'
 
+def make_timed_queue(queue_name: str, date, time)->None:
+    queue_list = read_json('timed_queues.json')
+    queue_list[queue_name] = {"date":date, "time":time}
+    write_json('timed_queues.json', queue_list)
 
 def delete_queue(queue_name: str) -> (bool, str):
     queue_list = read_json('queue_list.json')
@@ -238,6 +247,12 @@ def delete_queue(queue_name: str) -> (bool, str):
         return True
     else:
         return 'Queue_not_exist'
+
+
+def delete_timed_queue(queue_name: str) -> None:
+    queue_list = read_json('timed_queues.json')
+    queue_list.pop(queue_name)
+    write_json('timed_queues.json', queue_list)
 
 
 def rename_queue(queue_name: str, new_queue_name: str):
