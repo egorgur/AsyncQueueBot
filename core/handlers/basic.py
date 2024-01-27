@@ -66,6 +66,7 @@ async def reply_processing(message: types.Message, bot: Bot):
                         return 0
                     if len(name)>19:
                         await message.answer('Название слишком длинное')
+                        return 0
                     if len(date) > 2:
                         await message.answer('Неверный ввод даты')
                         return 0
