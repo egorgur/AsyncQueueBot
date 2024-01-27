@@ -18,7 +18,9 @@ from utils.callbackdata import QueuesButtonInfo, UserDeletion, UserAddition, Ret
     RenameQueue, MakeQueue, MakeTimedQueue, SpecUserAdditionCall, SpecUserAddition, UserToSwap, TimedQueues, \
     QueuesControl, DeleteTimedQueue
 from utils.time_checker import timed_queues_processor
-
+"""
+Queue Bot made by https://github.com/egorgur for my university group
+"""
 Token = TOKEN
 
 
